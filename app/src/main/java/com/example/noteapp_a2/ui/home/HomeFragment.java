@@ -31,7 +31,6 @@ import java.util.Locale;
 public class HomeFragment extends Fragment{
     private RecyclerView recyclerView;
     private NoteAdapter adapter;
-    final int DIALOG_DELETE = 1;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -104,7 +103,6 @@ public class HomeFragment extends Fragment{
             }
         });
     }
-
     private void setFragmentListener() {
         getParentFragmentManager().setFragmentResultListener(
                 FormFragment.RK_FORM, getViewLifecycleOwner(), new FragmentResultListener() {
@@ -117,7 +115,6 @@ public class HomeFragment extends Fragment{
                 }
         );
     }
-
     private void openForm() {
         NavController navController = Navigation.findNavController(requireActivity(),
                 R.id.nav_host_fragment);
