@@ -1,11 +1,14 @@
 package com.example.noteapp_a2.ui.home;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,11 +18,42 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.noteapp_a2.FormFragment;
+import com.example.noteapp_a2.OnItemClickListener;
 import com.example.noteapp_a2.R;
+import com.example.noteapp_a2.models.Note;
 
-public class HomeFragment extends Fragment {
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
+public class HomeFragment extends Fragment{
+    private RecyclerView recyclerView;
+    private NoteAdapter adapter;
+    final int DIALOG_DELETE = 1;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        adapter = new NoteAdapter();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm yyyy/MM/dd", Locale.ROOT);
+        String dateString = dateFormat.format(System.currentTimeMillis());
+        for (int i = 1; i < 15; i++) {
+            adapter.addItem(new Note("Элемент " + i, dateString));
+        }
+//        adapter.addItem(new Note("111111" ));
+//        adapter.addItem(new Note("222222" ));
+//        adapter.addItem(new Note("333333" ));
+//        adapter.addItem(new Note("444444" ));
+//        adapter.addItem(new Note("555555" ));
+//        adapter.addItem(new Note("666666" ));
+//        adapter.addItem(new Note("777777" ));
+//        adapter.addItem(new Note("888888" ));
+//        adapter.addItem(new Note("999999" ));
+//        adapter.addItem(new Note("10 10 10 10 10" ));
+
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -29,6 +63,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        recyclerView = view.findViewById(R.id.recyclerView);
         view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -36,6 +71,38 @@ public class HomeFragment extends Fragment {
             }
         });
         setFragmentListener();
+        initList();
+    }
+    private void initList() {
+        recyclerView.setAdapter(adapter);
+        adapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onClick(int position) {
+                Note note = adapter.getItem(position);
+                Toast.makeText(requireContext(), note.getTitle(), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onLongClick(int position) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(R.string.alert_delete);
+                //builder.setMessage("Выберите ответ!");
+                builder.setPositiveButton(R.string.alert_yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        adapter.deleteItem(position);
+                    }
+                });
+                builder.setNegativeButton(R.string.alert_no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                       // dialog.dismiss();
+                        dialog.cancel();
+                    }
+                });
+                builder.create().show();
+            }
+        });
     }
 
     private void setFragmentListener() {
@@ -43,6 +110,8 @@ public class HomeFragment extends Fragment {
                 FormFragment.RK_FORM, getViewLifecycleOwner(), new FragmentResultListener() {
                     @Override
                     public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                        Note note = (Note) result.getSerializable("note");
+                        adapter.addItem(note);
                         Log.e("ololo", "text = " + result.getString("text"));
                     }
                 }

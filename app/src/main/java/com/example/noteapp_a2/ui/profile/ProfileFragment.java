@@ -1,4 +1,4 @@
-package com.example.noteapp_a2;
+package com.example.noteapp_a2.ui.profile;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,11 +15,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.noteapp_a2.R;
 
 public class ProfileFragment extends Fragment {
     private ImageView imageView;
 
-    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -35,13 +35,12 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 getImage.launch("image/*");
-
             }
                 ActivityResultLauncher<String> getImage = registerForActivityResult(
                         new ActivityResultContracts.GetContent(),
-                        (Uri result) -> {
+                        (Uri resultUri) -> {
                             Glide.with(requireActivity())
-                                    .load(result)
+                                    .load(resultUri)
                                     .centerCrop()
                                     .circleCrop()
                                     .into(imageView);
