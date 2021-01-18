@@ -5,6 +5,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -22,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.noteapp_a2.FormFragment;
 import com.example.noteapp_a2.OnItemClickListener;
+import com.example.noteapp_a2.Prefs;
 import com.example.noteapp_a2.R;
 import com.example.noteapp_a2.models.Note;
 
@@ -36,22 +40,33 @@ public class HomeFragment extends Fragment{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adapter = new NoteAdapter();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm yyyy/MM/dd", Locale.ROOT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.ROOT);
         String dateString = dateFormat.format(System.currentTimeMillis());
         for (int i = 1; i < 15; i++) {
             adapter.addItem(new Note("Элемент " + i, dateString));
         }
-//        adapter.addItem(new Note("111111" ));
-//        adapter.addItem(new Note("222222" ));
-//        adapter.addItem(new Note("333333" ));
-//        adapter.addItem(new Note("444444" ));
-//        adapter.addItem(new Note("555555" ));
-//        adapter.addItem(new Note("666666" ));
-//        adapter.addItem(new Note("777777" ));
-//        adapter.addItem(new Note("888888" ));
-//        adapter.addItem(new Note("999999" ));
-//        adapter.addItem(new Note("10 10 10 10 10" ));
+        setHasOptionsMenu(true);
+    }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_clear_pref, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_clear_pref){
+            new Prefs(requireContext()).deletePrefSettings();
+            openBoardFragment();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void openBoardFragment() {
+        NavController navController = Navigation.findNavController(requireActivity(),
+                R.id.nav_host_fragment);
+        navController.navigate(R.id.boardFragment);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -83,10 +98,14 @@ public class HomeFragment extends Fragment{
 
             @Override
             public void onLongClick(int position) {
+                alertDialog(position);
+            }
+
+            private void alertDialog(int position) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle(R.string.alert_delete);
-                //builder.setMessage("Выберите ответ!");
-                builder.setPositiveButton(R.string.alert_yes, new DialogInterface.OnClickListener() {
+                builder.setTitle(R.string.alert_delete)
+                        .setMessage("Удалит этот элемент со списка.")
+                        .setPositiveButton(R.string.alert_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         adapter.deleteItem(position);
@@ -95,7 +114,6 @@ public class HomeFragment extends Fragment{
                 builder.setNegativeButton(R.string.alert_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                       // dialog.dismiss();
                         dialog.cancel();
                     }
                 });
@@ -103,6 +121,7 @@ public class HomeFragment extends Fragment{
             }
         });
     }
+
     private void setFragmentListener() {
         getParentFragmentManager().setFragmentResultListener(
                 FormFragment.RK_FORM, getViewLifecycleOwner(), new FragmentResultListener() {
@@ -119,6 +138,5 @@ public class HomeFragment extends Fragment{
         NavController navController = Navigation.findNavController(requireActivity(),
                 R.id.nav_host_fragment);
         navController.navigate(R.id.formFragment);
-
     }
 }

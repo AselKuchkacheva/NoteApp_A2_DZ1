@@ -34,4 +34,10 @@
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile"/>
 
+    <fragment
+        android:id="@+id/boardFragment"
+        android:name="com.example.noteapp_a2.ui.board.BoardFragment"
+        android:label="fragment_board"
+        tools:layout="@layout/fragment_board" />
+
 </navigation>

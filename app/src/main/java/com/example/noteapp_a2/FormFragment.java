@@ -40,9 +40,8 @@ public class FormFragment extends Fragment {
 
             private void save() {
                 String text = editText.getText().toString().trim();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm yyyy/MM/dd", Locale.ROOT);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.ROOT);
                 String dateString = dateFormat.format(System.currentTimeMillis());
-
                 Note note = new Note(text, dateString);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("note", note);

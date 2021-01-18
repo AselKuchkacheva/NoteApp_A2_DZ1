@@ -1,14 +1,23 @@
 package com.example.noteapp_a2;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,9 +27,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initNavController();
+        Prefs prefs = new Prefs(this);
+        if (!prefs.isShown())
+            navController.navigate(R.id.boardFragment);
+    }
+
+    private void initNavController() {
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home,
                 R.id.navigation_dashboard,
@@ -29,8 +43,22 @@ public class MainActivity extends AppCompatActivity {
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                ArrayList<Integer> list = new ArrayList<>();
+                list.add(R.id.navigation_home);
+                list.add(R.id.navigation_dashboard);
+                list.add(R.id.navigation_notifications);
+                list.add(R.id.navigation_profile);
+                if (list.contains(destination.getId())){
+                    navView.setVisibility(View.VISIBLE);
+                } else {
+                    navView.setVisibility(View.GONE);
+                }
+            }
+        });
     }
-
     //шаг назад к фрагменту в меню(во всех меню)
     @Override
     public boolean onSupportNavigateUp() {
