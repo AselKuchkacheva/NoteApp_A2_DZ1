@@ -38,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home,
                 R.id.navigation_dashboard,
-                R.id.navigation_notifications)
+                R.id.navigation_notifications,
+                R.id.navigation_profile)
                 .build();
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -51,11 +52,16 @@ public class MainActivity extends AppCompatActivity {
                 list.add(R.id.navigation_dashboard);
                 list.add(R.id.navigation_notifications);
                 list.add(R.id.navigation_profile);
+                //прячет для BoardFragment нижние табы
                 if (list.contains(destination.getId())){
                     navView.setVisibility(View.VISIBLE);
                 } else {
                     navView.setVisibility(View.GONE);
                 }
+                //прячет Туулбар сверху для BoardFragment
+                if (destination.getId()==R.id.boardFragment){
+                    getSupportActionBar().hide();
+                }else getSupportActionBar().show();
             }
         });
     }

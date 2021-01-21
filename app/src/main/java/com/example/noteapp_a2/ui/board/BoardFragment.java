@@ -2,6 +2,7 @@ package com.example.noteapp_a2.ui.board;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -45,6 +46,17 @@ public class BoardFragment extends Fragment {
 
             }
         });
+
+        //кнопка "назад" <-- которая когда открыт BoardFragment делает выход из приложения в целом
+        requireActivity().getOnBackPressedDispatcher().addCallback(
+                getViewLifecycleOwner(),
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        requireActivity().finish();
+                    }
+                }
+        );
         buttonSkip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

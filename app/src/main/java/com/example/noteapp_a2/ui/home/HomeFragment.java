@@ -1,6 +1,7 @@
 package com.example.noteapp_a2.ui.home;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,18 +24,24 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.noteapp_a2.App;
 import com.example.noteapp_a2.FormFragment;
 import com.example.noteapp_a2.OnItemClickListener;
 import com.example.noteapp_a2.Prefs;
 import com.example.noteapp_a2.R;
 import com.example.noteapp_a2.models.Note;
+import com.example.noteapp_a2.room.AppDataBase;
+import com.example.noteapp_a2.room.NoteDao;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 
-public class HomeFragment extends Fragment{
+public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private NoteAdapter adapter;
+    private List<Note> list;
+    private boolean isEditing = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,10 +49,18 @@ public class HomeFragment extends Fragment{
         adapter = new NoteAdapter();
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.ROOT);
         String dateString = dateFormat.format(System.currentTimeMillis());
-        for (int i = 1; i < 15; i++) {
-            adapter.addItem(new Note("Элемент " + i, dateString));
-        }
         setHasOptionsMenu(true);
+        adapter.setList(loadData());
+    }
+
+    private List<Note> loadData() {
+        if (App.getPrefs().isSortedAZ())
+            list = App.getAppDataBase().noteDao().sortAZ();
+        if (App.getPrefs().isSortedDate())
+            list = App.getAppDataBase().noteDao().sortDate();
+        else
+            list = App.getAppDataBase().noteDao().getAll();
+        return list;
     }
 
     @Override
@@ -56,9 +71,24 @@ public class HomeFragment extends Fragment{
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_clear_pref){
-            new Prefs(requireContext()).deletePrefSettings();
+        if (item.getItemId() == R.id.item_menu_clear) {
+            App.getPrefs().deletePrefSettings();
             openBoardFragment();
+        }
+        if (item.getItemId() == R.id.menu_sort_a_z) {
+            if (App.getPrefs().isSortedAZ())
+                App.getPrefs().notSortAZ();
+            else
+                App.getPrefs().sortAZ();
+            adapter.setNewList(loadData());
+        }
+
+        if (item.getItemId() == R.id.menu_sort_date) {
+            if (App.getPrefs().isSortedDate())
+                App.getPrefs().notSortDate();
+            else
+                App.getPrefs().sortDate();
+            adapter.setNewList(loadData());
         }
         return super.onOptionsItemSelected(item);
     }
@@ -81,19 +111,26 @@ public class HomeFragment extends Fragment{
         view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isEditing = false;
                 openForm();
             }
         });
         setFragmentListener();
         initList();
     }
+
     private void initList() {
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
                 Note note = adapter.getItem(position);
-                Toast.makeText(requireContext(), note.getTitle(), Toast.LENGTH_LONG).show();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("text_item", note);
+                isEditing = true;
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.formFragment, bundle);
+                //Toast.makeText(requireContext(), note.getTitle(), Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -104,13 +141,14 @@ public class HomeFragment extends Fragment{
             private void alertDialog(int position) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle(R.string.alert_delete)
-                        .setMessage("Удалит этот элемент со списка.")
+                        .setMessage("Удалить этот элемент из списка.")
                         .setPositiveButton(R.string.alert_yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        adapter.deleteItem(position);
-                    }
-                });
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                App.getAppDataBase().noteDao().delete(adapter.getItem(position));
+                                adapter.deleteItem(position);
+                            }
+                        });
                 builder.setNegativeButton(R.string.alert_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -128,12 +166,17 @@ public class HomeFragment extends Fragment{
                     @Override
                     public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
                         Note note = (Note) result.getSerializable("note");
-                        adapter.addItem(note);
+                        if (isEditing) {
+                            adapter.updateElement(adapter.getPosition(note), note);
+                        } else {
+                            adapter.addItem(note);
+                        }
                         Log.e("ololo", "text = " + result.getString("text"));
                     }
                 }
         );
     }
+
     private void openForm() {
         NavController navController = Navigation.findNavController(requireActivity(),
                 R.id.nav_host_fragment);

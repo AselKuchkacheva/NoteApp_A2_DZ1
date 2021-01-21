@@ -7,6 +7,7 @@ public class Prefs {
 
     private SharedPreferences preferences;
 
+
     public Prefs(Context context) {
        preferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
     }
@@ -21,5 +22,29 @@ public class Prefs {
 
     public void deletePrefSettings (){
         preferences.edit().clear().apply();
+    }
+
+    public boolean isSortedAZ(){
+        return preferences.getBoolean("isSortedAZ", false);
+    }
+
+    public void sortAZ() {
+        preferences.edit().putBoolean("isSortedAZ", true).apply();
+    }
+
+    public void notSortAZ() {
+        preferences.edit().putBoolean("isSortedAZ", false).apply();
+    }
+
+    public boolean isSortedDate(){
+        return preferences.getBoolean("isSortedDate", false);
+    }
+
+    public void sortDate() {
+        preferences.edit().putBoolean("isSortedDate", true).apply();
+    }
+
+    public void notSortDate() {
+        preferences.edit().putBoolean("isSortedDate", false).apply();
     }
 }

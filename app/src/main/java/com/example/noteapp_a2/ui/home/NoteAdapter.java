@@ -14,6 +14,7 @@ import com.example.noteapp_a2.R;
 import com.example.noteapp_a2.models.Note;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
 
@@ -44,7 +45,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
 
     public void addItem(Note note) {
         list.add(0, note);
-       // notifyItemInserted(list.size()-1);
         notifyItemInserted(list.indexOf(note));
     }
     public  void  deleteItem(int position){
@@ -60,6 +60,26 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         return list.get(position);
     }
 
+    public void setList(List<Note> list) {
+        this.list.addAll(list);
+        notifyDataSetChanged();
+    }
+
+    public void updateElement(int position, Note note) {
+        list.set(position, note);
+        notifyItemChanged(position);
+    }
+
+    public int getPosition(Note note) {
+        return list.indexOf(note);
+    }
+
+    public void setNewList(List<Note> list) {
+        this.list.clear();
+        this.list.addAll(list);
+        notifyDataSetChanged();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         private TextView textTitle;
@@ -72,9 +92,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
                 public void onClick(View v) {
                     onItemClickListener.onClick(getAdapterPosition());
                 }
-
             });
-
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
