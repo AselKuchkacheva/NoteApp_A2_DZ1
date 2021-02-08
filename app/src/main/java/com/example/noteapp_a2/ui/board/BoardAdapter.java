@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.noteapp_a2.OnItemClickListener;
 import com.example.noteapp_a2.R;
 
@@ -19,8 +20,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder> 
 
     private String[] titles = new String[]{"Fast", "Free", "Powerful"};
     private String[] desc = new String[]{"fast", "free", "powerful"};
-    private int[] images = new int[]{R.drawable.speshka, R.drawable.syr_v_myshelovke,
-            R.drawable.znanie_sila};
+    private int[] images = new int[]{R.raw.fast, R.raw.free,
+            R.raw.powerful};
     private OnItemClickListener onItemClickListener;
 
     public BoardAdapter() {
@@ -52,14 +53,14 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView textBoardTitle;
         private TextView textDesc;
-        private ImageView imageViewBoard;
+        private LottieAnimationView lottie;
         private Button btnStart;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textBoardTitle = itemView.findViewById(R.id.textBoardTitle);
             textDesc = itemView.findViewById(R.id.textDesc);
-            imageViewBoard = itemView.findViewById(R.id.imageView);
+            lottie = itemView.findViewById(R.id.lottie);
             btnStart = itemView.findViewById(R.id.btnStart);
             btnStart.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -72,12 +73,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder> 
         public void bind(int position) {
             textBoardTitle.setText(titles[position]);
             textDesc.setText(desc[position]);
-            imageViewBoard.setImageResource(images[position]);
+            lottie.setAnimation(images[position]);
             btnStartOnLastPage(position);
         }
 
         private void btnStartOnLastPage(int position) {
-            if (position == (titles.length - 1)) btnStart.setVisibility(View.VISIBLE);
+            if (position == (titles.length - 1))
+                btnStart.setVisibility(View.VISIBLE);
             else btnStart.setVisibility(View.GONE);
         }
     }

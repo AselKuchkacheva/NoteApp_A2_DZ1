@@ -13,9 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.noteapp_a2.models.Note;
 import com.example.noteapp_a2.room.AppDataBase;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -45,10 +50,11 @@ public class FormFragment extends Fragment {
             }
             private void save() {
                 String text = editText.getText().toString().trim();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.ROOT);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy,HH:mm", Locale.ROOT);
                 String dateString = dateFormat.format(System.currentTimeMillis());
                 if (noteBundle == null){
                     noteBundle = new Note(text, dateString);
+                    saveToFirestore(noteBundle);
                     App.getAppDataBase().noteDao().insert(noteBundle);
                 }else {
                     noteBundle.setTitle(text);
@@ -57,15 +63,29 @@ public class FormFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("note", noteBundle);
                 getParentFragmentManager().setFragmentResult(RK_FORM, bundle);
-                close();
-            }
 
-            private void close() {
-                NavController navController = Navigation.findNavController(requireActivity(),
-                        R.id.nav_host_fragment);
-                navController.navigateUp();
             }
         });
+    }
+
+    private void saveToFirestore(Note noteBundle) {
+        FirebaseFirestore.getInstance()
+                .collection("notes")
+                .add(noteBundle)
+                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentReference> task) {
+                        if(task.isSuccessful()){
+                            close();
+                            Toast.makeText(requireContext(), "Успешно", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+    }
+    private void close() {
+        NavController navController = Navigation.findNavController(requireActivity(),
+                R.id.nav_host_fragment);
+        navController.navigateUp();
     }
 
     private void getDataBundle() {

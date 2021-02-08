@@ -28,6 +28,6 @@ public interface NoteDao {
     @Query("SELECT * FROM note ORDER BY title ASC")
     List<Note> sortAZ();
 
-    @Query("SELECT * FROM note ORDER BY createdAt ASC")
+   @Query("SELECT * FROM note ORDER BY createdAt ASC")
     List<Note> sortDate();
 }

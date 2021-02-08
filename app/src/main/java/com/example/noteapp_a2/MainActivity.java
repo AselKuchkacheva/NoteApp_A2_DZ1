@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
         Prefs prefs = new Prefs(this);
         if (!prefs.isShown())
             navController.navigate(R.id.boardFragment);
+        else if (FirebaseAuth.getInstance().getCurrentUser() == null){
+            navController.navigate(R.id.phoneFragment);
+        }
     }
 
     private void initNavController() {
@@ -41,7 +46,11 @@ public class MainActivity extends AppCompatActivity {
                 R.id.navigation_notifications,
                 R.id.navigation_profile)
                 .build();
-        navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        assert navHostFragment != null;
+        navController = navHostFragment.getNavController();
+
+       // navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {

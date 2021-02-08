@@ -13,6 +13,8 @@ public class Note implements Serializable {
     private String title;
     private String createdAt;
 
+    public Note() {
+    }
 
     public Note(String title, String createdAt) {
         this.title = title;

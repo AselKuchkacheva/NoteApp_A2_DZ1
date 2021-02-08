@@ -18,9 +18,13 @@ import android.widget.Button;
 import com.example.noteapp_a2.OnItemClickListener;
 import com.example.noteapp_a2.Prefs;
 import com.example.noteapp_a2.R;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 public class BoardFragment extends Fragment {
     private Button buttonSkip;
+    private ViewPager2 viewPager;
+    private BoardAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,10 +35,12 @@ public class BoardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ViewPager2 viewPager = view.findViewById(R.id.viewPager);
+        viewPager = view.findViewById(R.id.viewPager);
         buttonSkip = view.findViewById(R.id.btn_skip);
-        BoardAdapter adapter = new BoardAdapter();
+        adapter = new BoardAdapter();
         viewPager.setAdapter(adapter);
+        TabLayout tabLayout = view.findViewById(R.id.tab_layout);
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> { }).attach();
         adapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
@@ -46,7 +52,6 @@ public class BoardFragment extends Fragment {
 
             }
         });
-
         //кнопка "назад" <-- которая когда открыт BoardFragment делает выход из приложения в целом
         requireActivity().getOnBackPressedDispatcher().addCallback(
                 getViewLifecycleOwner(),
@@ -64,11 +69,13 @@ public class BoardFragment extends Fragment {
             }
         });
     }
+
     private void close() {
         Prefs prefs = new Prefs(requireContext());
         prefs.saveBoardStatus();
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         navController.navigateUp();
+        navController.navigate(R.id.phoneFragment);
     }
 
 }

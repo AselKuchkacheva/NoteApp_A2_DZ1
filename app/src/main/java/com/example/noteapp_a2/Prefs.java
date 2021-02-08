@@ -36,6 +36,7 @@ public class Prefs {
         preferences.edit().putBoolean("isSortedAZ", false).apply();
     }
 
+
     public boolean isSortedDate(){
         return preferences.getBoolean("isSortedDate", false);
     }
@@ -47,4 +48,6 @@ public class Prefs {
     public void notSortDate() {
         preferences.edit().putBoolean("isSortedDate", false).apply();
     }
+
+
 }

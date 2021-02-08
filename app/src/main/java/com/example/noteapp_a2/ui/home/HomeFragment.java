@@ -47,19 +47,20 @@ public class HomeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adapter = new NoteAdapter();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.ROOT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy,HH:mm", Locale.ROOT);
         String dateString = dateFormat.format(System.currentTimeMillis());
         setHasOptionsMenu(true);
         adapter.setList(loadData());
     }
 
     private List<Note> loadData() {
+
         if (App.getPrefs().isSortedAZ())
             list = App.getAppDataBase().noteDao().sortAZ();
         if (App.getPrefs().isSortedDate())
             list = App.getAppDataBase().noteDao().sortDate();
-        else
-            list = App.getAppDataBase().noteDao().getAll();
+        else list = App.getAppDataBase().noteDao().getAll();
+
         return list;
     }
 
@@ -76,18 +77,19 @@ public class HomeFragment extends Fragment {
             openBoardFragment();
         }
         if (item.getItemId() == R.id.menu_sort_a_z) {
-            if (App.getPrefs().isSortedAZ())
+            if (App.getPrefs().isSortedAZ() ) {
                 App.getPrefs().notSortAZ();
-            else
+            }else
                 App.getPrefs().sortAZ();
+
             adapter.setNewList(loadData());
         }
 
         if (item.getItemId() == R.id.menu_sort_date) {
-            if (App.getPrefs().isSortedDate())
-                App.getPrefs().notSortDate();
-            else
+            if (!App.getPrefs().isSortedDate() )
                 App.getPrefs().sortDate();
+            else App.getPrefs().notSortDate();
+
             adapter.setNewList(loadData());
         }
         return super.onOptionsItemSelected(item);
